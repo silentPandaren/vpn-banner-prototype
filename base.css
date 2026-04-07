@@ -1,0 +1,81 @@
+/* MY.GAMES Market — base reset + typography
+ * Зависит от tokens.css
+ */
+
+/* ===== Fonts ===== */
+@font-face {
+  font-family: 'Countach';
+  src: url('./fonts/countach-bold-webfont.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* Inter — берём с Google Fonts через @import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== Reset ===== */
+*, *::before, *::after {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  background: var(--color-bg-layout);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  line-height: var(--lh-22);
+  font-weight: var(--fw-medium);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg, video { display: block; max-width: 100%; }
+
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+a:hover { color: var(--color-text-link-hover); }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--brand-500);
+  color: #fff;
+}
+
+/* ===== Typography utility classes ===== */
+.h-display-d { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-80); line-height: var(--lh-72); letter-spacing: -1px; text-transform: uppercase; }
+.h-display-m { font-family: var(--font-display); font-weight: 700; font-size: var(--fs-58); line-height: var(--lh-56); letter-spacing: -1px; text-transform: uppercase; }
+.h-1 { font-weight: 600; font-size: var(--fs-38); line-height: var(--lh-46); }
+.h-2 { font-weight: 600; font-size: var(--fs-30); line-height: var(--lh-38); }
+.h-3 { font-weight: 600; font-size: var(--fs-24); line-height: var(--lh-32); }
+.h-4 { font-weight: 600; font-size: var(--fs-20); line-height: var(--lh-28); }
+.h-5 { font-weight: 600; font-size: var(--fs-16); line-height: var(--lh-24); }
+
+.t-lg          { font-size: var(--fs-16); line-height: var(--lh-24); }
+.t-lg-bold     { font-size: var(--fs-16); line-height: var(--lh-24); font-weight: 600; }
+.t-base        { font-size: var(--fs-14); line-height: var(--lh-22); font-weight: 500; }
+.t-base-bold   { font-size: var(--fs-14); line-height: var(--lh-22); font-weight: 700; }
+.t-sm          { font-size: var(--fs-12); line-height: var(--lh-20); font-weight: 400; }
+.t-sm-bold     { font-size: var(--fs-12); line-height: var(--lh-20); font-weight: 600; }
+
+.t-secondary { color: var(--color-text-secondary); }
+.t-tertiary  { color: var(--color-text-tertiary); }
+.t-disabled  { color: var(--color-text-disabled); }

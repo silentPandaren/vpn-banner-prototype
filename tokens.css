@@ -1,0 +1,165 @@
+/* MY.GAMES Market — design tokens
+ * Source: repos/my-games-market-front-master/styles/variables/
+ * Theme: dark (default)
+ */
+:root {
+  /* ===== Palette: brand (blue) ===== */
+  --brand-50: #f2f6ff;
+  --brand-100: #c2d7ff;
+  --brand-200: #91b8ff;
+  --brand-300: #6198ff;
+  --brand-400: #3079ff;
+  --brand-500: #005aff;
+  --brand-600: #004cd6;
+  --brand-700: #003dad;
+  --brand-800: #002f84;
+  --brand-900: #00205b;
+
+  /* ===== Palette: gray ===== */
+  --gray-50:  #fafafa;
+  --gray-100: #dedede;
+  --gray-200: #c2c2c2;
+  --gray-300: #a7a7a7;
+  --gray-400: #6d6d72;
+  --gray-500: #414141;
+  --gray-600: #303030;
+  --gray-700: #1e1e1e;
+  --gray-800: #1c1c1c;
+  --gray-900: #141414;
+  --white:    #ffffff;
+
+  /* ===== Palette: status ===== */
+  --green-500: #0fc31e;
+  --red-500:   #ff0000;
+  --red-error: #e0000d;
+  --yellow-500:#ffc700;
+  --orange-500:#ff5811;
+  --pink-500:  #dc0050;
+  --purple-500:#7000ff;
+
+  /* ===== Alpha overlays ===== */
+  --alpha-white-10: rgba(255,255,255,0.10);
+  --alpha-white-20: rgba(255,255,255,0.20);
+  --alpha-white-40: rgba(255,255,255,0.40);
+  --alpha-white-80: rgba(255,255,255,0.80);
+  --alpha-black-20: rgba(0,0,0,0.20);
+  --alpha-black-40: rgba(0,0,0,0.40);
+  --alpha-black-80: rgba(0,0,0,0.80);
+
+  /* ===== Semantic: backgrounds (dark theme) ===== */
+  --color-bg-base:      #0a0a0a;
+  --color-bg-layout:    #0a0a0a;
+  --color-bg-container: #141414;
+  --color-bg-elevated:  #1f1f1f;
+  --color-bg-spotlight: #2d2d2d;
+  --color-bg-mask:      rgba(0,0,0,0.65);
+
+  /* ===== Semantic: text ===== */
+  --color-text:             #ffffff;
+  --color-text-secondary:   rgba(255,255,255,0.65);
+  --color-text-tertiary:    rgba(255,255,255,0.45);
+  --color-text-quaternary:  rgba(255,255,255,0.25);
+  --color-text-disabled:    rgba(255,255,255,0.25);
+  --color-text-placeholder: rgba(255,255,255,0.45);
+  --color-text-heading:     #ffffff;
+  --color-text-link:        #3079ff;
+  --color-text-link-hover:  #6198ff;
+
+  /* ===== Semantic: borders ===== */
+  --color-border:           #424242;
+  --color-border-secondary: #303030;
+  --color-border-focus:     #15325b;
+
+  /* ===== Semantic: fills ===== */
+  --color-fill:           rgba(255,255,255,0.18);
+  --color-fill-secondary: rgba(255,255,255,0.12);
+  --color-fill-tertiary:  rgba(255,255,255,0.08);
+  --color-fill-quaternary:rgba(255,255,255,0.04);
+  --color-split:          rgba(255,255,255,0.10);
+
+  /* ===== Semantic: status ===== */
+  --color-primary: #005aff;
+  --color-success: #52c41a;
+  --color-warning: #d89614;
+  --color-error:   #e0000d;
+  --color-info:    #005aff;
+
+  /* ===== Spacings (base scale, 4px grid) ===== */
+  --space-4:  4px;
+  --space-8:  8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* ===== Radii ===== */
+  --radius-xs:  2px;
+  --radius-sm:  4px;
+  --radius-md:  8px;   /* default button/card */
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-2xl: 20px;
+  --radius-pill:9999px;
+
+  /* ===== Borders ===== */
+  --border-width:       1px;
+  --border-width-bold:  2px;
+  --border-width-focus: 4px;
+
+  /* ===== Control sizes ===== */
+  --control-height-xs: 16px;
+  --control-height-sm: 24px;
+  --control-height:    32px;
+  --control-height-lg: 44px;
+
+  /* ===== Typography: family ===== */
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Countach', var(--font-sans); /* для крупных заголовков */
+
+  /* ===== Typography: weights ===== */
+  --fw-regular:   450;
+  --fw-medium:    550;
+  --fw-lightbold: 600;
+  --fw-semibold:  650;
+  --fw-bold:      700;
+
+  /* ===== Typography: sizes ===== */
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;  /* base */
+  --fs-16: 16px;
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-30: 30px;
+  --fs-36: 36px;
+  --fs-38: 38px;
+  --fs-58: 58px;  /* heading-0 mobile */
+  --fs-80: 80px;  /* heading-0 desktop */
+
+  /* ===== Typography: line-heights ===== */
+  --lh-12: 12px;
+  --lh-16: 16px;
+  --lh-20: 20px;
+  --lh-22: 22px; /* base body */
+  --lh-24: 24px;
+  --lh-28: 28px;
+  --lh-32: 32px;
+  --lh-38: 38px;
+  --lh-40: 40px;
+  --lh-46: 46px;
+  --lh-48: 48px;
+  --lh-56: 56px;
+  --lh-72: 72px;
+
+  /* ===== Breakpoints (для справки) =====
+     xs 480 / sm 576 / md 768 / lg 992 / xl 1200 / xxl 1600 */
+
+  /* ===== Layout ===== */
+  --section-padding-desktop: 80px;
+  --section-margin-desktop:  142px;
+  --sections-gap-desktop:    32px;
+}
