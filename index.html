@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VPN Banner — MY.GAMES Market</title>
+  <link rel="stylesheet" href="../_market-kit/tokens.css" />
+  <link rel="stylesheet" href="../_market-kit/base.css" />
+  <link rel="stylesheet" href="../_market-kit/components.css" />
+  <style>
+    html, body { overflow-x: hidden; }
+
+    /* ===== VPN Banner ===== */
+    .vpn-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: var(--color-warning);
+      color: #000;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .vpn-banner.is-visible {
+      transform: translateY(0);
+    }
+    .vpn-banner__inner {
+      max-width: 1316px;
+      margin-inline: auto;
+      padding: var(--space-12) var(--space-16);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-16);
+    }
+    @media (min-width: 992px) {
+      .vpn-banner__inner { padding-inline: var(--space-32); }
+    }
+    .vpn-banner__content {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      flex: 1;
+      min-width: 0;
+    }
+    .vpn-banner__icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      opacity: .8;
+    }
+    .vpn-banner__text {
+      font-size: var(--fs-14);
+      font-weight: 600;
+      line-height: var(--lh-20);
+    }
+    .vpn-banner__close {
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.15);
+      color: #000;
+      border: none;
+      border-radius: var(--radius-pill);
+      height: var(--control-height);
+      padding: 0 var(--space-16);
+      font-size: var(--fs-14);
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .vpn-banner__close:hover { background: rgba(0,0,0,0.25); }
+    .vpn-banner__close:active { background: rgba(0,0,0,0.35); }
+
+    /* Страница смещается вверх, когда баннер открыт */
+    body.vpn-banner-open {
+      padding-bottom: 56px;
+    }
+
+    .section-title {
+      font-size: var(--fs-20);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-16);
+    }
+
+    /* ===== Grid: 2 колонки на мобиле ===== */
+    .mk-grid--items {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (min-width: 576px) {
+      .mk-grid--items { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 992px) {
+      .mk-grid--items { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* ===== Debug panel ===== */
+    .debug-panel {
+      position: fixed;
+      top: 80px;
+      right: var(--space-16);
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-16);
+      width: 220px;
+      font-size: var(--fs-12);
+      z-index: 150;
+      /* На мобиле сворачиваем в кнопку-таб снизу */
+    }
+    @media (max-width: 575px) {
+      .debug-panel {
+        top: auto;
+        bottom: 64px;
+        right: var(--space-8);
+        left: var(--space-8);
+        width: auto;
+        max-height: 44px;
+        overflow: hidden;
+        transition: max-height .3s ease;
+      }
+      .debug-panel.is-open { max-height: 500px; }
+      .debug-panel h4 {
+        cursor: pointer;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .debug-panel h4::after { content: '▲'; font-size: 10px; }
+      .debug-panel.is-open h4 { margin-bottom: var(--space-12); }
+      .debug-panel.is-open h4::after { content: '▼'; }
+      .debug-rows, .debug-verdict, .debug-controls { display: none; }
+      .debug-panel.is-open .debug-rows { display: block; }
+      .debug-panel.is-open .debug-verdict { display: block; }
+      .debug-panel.is-open .debug-controls { display: flex; }
+    }
+    .debug-panel h4 {
+      font-size: var(--fs-12);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-12);
+    }
+    .debug-row {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-8);
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--color-split);
+    }
+    .debug-row:last-of-type { border-bottom: none; }
+    .debug-label { color: var(--color-text-secondary); }
+    .debug-value { color: var(--color-text); font-weight: 600; text-align: right; max-width: 160px; word-break: break-all; }
+    .debug-verdict {
+      margin-top: var(--space-12);
+      padding: var(--space-8) var(--space-12);
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: var(--fs-12);
+      text-align: center;
+    }
+    .debug-verdict--vpn { background: rgba(216,150,20,0.2); color: var(--color-warning); }
+    .debug-verdict--ok { background: rgba(82,196,26,0.15); color: var(--color-success); }
+    .debug-controls { display: flex; flex-direction: column; gap: var(--space-8); margin-top: var(--space-12); }
+    .debug-controls button {
+      width: 100%;
+      font-size: var(--fs-12);
+      height: var(--control-height-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Хедер -->
+  <header class="mk-header">
+    <div class="mk-header__brand">MY.GAMES</div>
+    <nav class="mk-header__nav">
+      <a href="#">Магазин</a>
+      <a href="#">Игры</a>
+      <a href="#">Поддержка</a>
+    </nav>
+  </header>
+
+  <!-- VPN-перетяжка -->
+  <div class="vpn-banner" id="vpnBanner" role="alert" aria-live="polite">
+    <div class="vpn-banner__inner">
+      <div class="vpn-banner__content">
+        <svg class="vpn-banner__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2Zm0 4a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1Zm0 8a1.25 1.25 0 1 1 0-2.5A1.25 1.25 0 0 1 10 14Z" fill="currentColor"/>
+        </svg>
+        <span class="vpn-banner__text">
+          Использование VPN может приводить к неправильной работе сайта
+        </span>
+      </div>
+      <button class="vpn-banner__close" id="vpnBannerClose" onclick="closeBanner()">
+        Понятно
+      </button>
+    </div>
+  </div>
+
+  <!-- Витрина -->
+  <main class="mk-container" style="padding-top: var(--space-32); padding-bottom: var(--space-48);">
+
+    <!-- Каталог -->
+    <h2 class="section-title">Популярные товары</h2>
+    <div class="mk-grid mk-grid--items" style="margin-bottom: var(--space-32);">
+      <!-- Карточки -->
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#1a1a3e,#003166);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🤖</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="mk-tag mk-tag--brand">Новинка</span>
+          </div>
+          <div class="mk-item-card__title">Скин «Нейтронная Буря»</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">349 ₽</span>
+            <span class="mk-item-card__price-old">499 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#1a3020,#004d1a);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">⚡</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="mk-tag mk-tag--warning">-30%</span>
+          </div>
+          <div class="mk-item-card__title">Ускоритель опыта ×3 — 7 дней</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">199 ₽</span>
+            <span class="mk-item-card__price-old">279 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#2e1a00,#7a3d00);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🎖️</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="height:20px;"></div>
+          <div class="mk-item-card__title">Боевой пропуск — Сезон 12</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">749 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#2a001a,#6d0042);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">💎</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="mk-tag mk-tag--error">Хит</span>
+          </div>
+          <div class="mk-item-card__title">Набор «Алмазный» — 5000 Au</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">1 490 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#001a2e,#005a8a);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🛡️</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="mk-tag mk-tag--warning">-20%</span>
+          </div>
+          <div class="mk-item-card__title">Броня «Арктический страж»</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">279 ₽</span>
+            <span class="mk-item-card__price-old">349 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#1a0a00,#5c2800);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🔥</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="height:20px;"></div>
+          <div class="mk-item-card__title">Набор «Инферно» — 2500 Au</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">649 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#0a1a00,#1f4d00);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🎯</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="mk-tag mk-tag--brand">Новинка</span>
+          </div>
+          <div class="mk-item-card__title">Прицел «Снайпер Про»</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">99 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#12001a,#3d0059);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🌀</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span class="mk-tag mk-tag--error">Хит</span>
+          </div>
+          <div class="mk-item-card__title">Эффект «Вихрь»</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">449 ₽</span>
+            <span class="mk-item-card__price-old">599 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+
+      <div class="mk-item-card">
+        <div class="mk-item-card__img" style="background:linear-gradient(135deg,#001a1a,#004d4d);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:48px;">🚀</span>
+        </div>
+        <div class="mk-item-card__body">
+          <div style="height:20px;"></div>
+          <div class="mk-item-card__title">Ускоритель добычи — 30 дней</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="mk-item-card__price">399 ₽</span>
+          </div>
+          <button class="mk-btn mk-btn--primary" style="width:100%;margin-top:4px;">Купить</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Debug panel (только для прототипа) -->
+  <div class="debug-panel" id="debugPanel">
+    <h4 onclick="toggleDebug()">Детектор VPN</h4>
+    <div class="debug-rows">
+      <div class="debug-row">
+        <span class="debug-label">Язык</span>
+        <span class="debug-value" id="dbgLang">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Таймзона</span>
+        <span class="debug-value" id="dbgTz">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Регион языка</span>
+        <span class="debug-value" id="dbgLangRegion">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Регион TZ</span>
+        <span class="debug-value" id="dbgTzRegion">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Сохранено в LS</span>
+        <span class="debug-value" id="dbgDismissed">—</span>
+      </div>
+    </div>
+    <div class="debug-verdict" id="dbgVerdict">…</div>
+    <div class="debug-controls">
+      <button class="mk-btn mk-btn--secondary mk-btn--sm" onclick="resetBanner()">Сбросить «Понятно»</button>
+      <button class="mk-btn mk-btn--ghost mk-btn--sm" onclick="forceShow()">Показать баннер</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'vpn_banner_dismissed';
+
+    // Таймзоны стран СНГ и России
+    const CIS_TIMEZONES = new Set([
+      'Europe/Moscow', 'Europe/Samara', 'Europe/Volgograd',
+      'Asia/Yekaterinburg', 'Asia/Omsk', 'Asia/Krasnoyarsk',
+      'Asia/Novosibirsk', 'Asia/Irkutsk', 'Asia/Yakutsk',
+      'Asia/Vladivostok', 'Asia/Sakhalin', 'Asia/Magadan',
+      'Asia/Srednekolymsk', 'Asia/Kamchatka', 'Asia/Anadyr',
+      'Europe/Kaliningrad',
+      // Беларусь
+      'Europe/Minsk',
+      // Украина
+      'Europe/Kiev', 'Europe/Kyiv',
+      // Казахстан
+      'Asia/Almaty', 'Asia/Aqtau', 'Asia/Aqtobe', 'Asia/Atyrau',
+      'Asia/Oral', 'Asia/Qostanay', 'Asia/Qyzylorda',
+      // Азербайджан
+      'Asia/Baku',
+      // Армения
+      'Asia/Yerevan',
+      // Грузия
+      'Asia/Tbilisi',
+      // Узбекистан
+      'Asia/Samarkand', 'Asia/Tashkent',
+      // Туркменистан
+      'Asia/Ashgabat',
+      // Таджикистан
+      'Asia/Dushanbe',
+      // Кыргызстан
+      'Asia/Bishkek',
+      // Молдова
+      'Europe/Chisinau',
+      // Эстония/Латвия/Литва (исторически входили в СССР, некоторые ru-пользователи)
+      'Europe/Tallinn', 'Europe/Riga', 'Europe/Vilnius',
+    ]);
+
+    // Языки, характерные для аудитории MY.GAMES
+    const CIS_LANG_PREFIXES = ['ru', 'be', 'uk', 'kk', 'ky', 'uz', 'tg', 'az', 'hy', 'ka'];
+
+    function detectSignals() {
+      const lang = navigator.language || navigator.languages?.[0] || '';
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const langBase = lang.split('-')[0].toLowerCase();
+
+      const isCisLang = CIS_LANG_PREFIXES.includes(langBase);
+      const isCisTz = CIS_TIMEZONES.has(tz);
+
+      return { lang, tz, langBase, isCisLang, isCisTz };
+    }
+
+    function shouldShowBanner() {
+      if (localStorage.getItem(STORAGE_KEY)) return false;
+      const { isCisLang, isCisTz } = detectSignals();
+      // Показываем если язык — СНГ, но таймзона — не СНГ
+      // (скорее всего VPN меняет локацию, но язык системы остаётся)
+      return isCisLang && !isCisTz;
+    }
+
+    function showBanner() {
+      const banner = document.getElementById('vpnBanner');
+      banner.classList.add('is-visible');
+      document.body.classList.add('vpn-banner-open');
+    }
+
+    function closeBanner() {
+      const banner = document.getElementById('vpnBanner');
+      banner.classList.remove('is-visible');
+      document.body.classList.remove('vpn-banner-open');
+      localStorage.setItem(STORAGE_KEY, '1');
+      updateDebug();
+    }
+
+    function resetBanner() {
+      localStorage.removeItem(STORAGE_KEY);
+      updateDebug();
+    }
+
+    function forceShow() {
+      showBanner();
+    }
+
+    function toggleDebug() {
+      document.getElementById('debugPanel').classList.toggle('is-open');
+    }
+
+    function updateDebug() {
+      const { lang, tz, langBase, isCisLang, isCisTz } = detectSignals();
+      const dismissed = !!localStorage.getItem(STORAGE_KEY);
+
+      document.getElementById('dbgLang').textContent = lang;
+      document.getElementById('dbgTz').textContent = tz;
+      document.getElementById('dbgLangRegion').textContent = isCisLang ? 'СНГ' : 'Другой';
+      document.getElementById('dbgTzRegion').textContent = isCisTz ? 'СНГ' : 'Другой';
+      document.getElementById('dbgDismissed').textContent = dismissed ? 'Да' : 'Нет';
+
+      const verdict = document.getElementById('dbgVerdict');
+      if (isCisLang && !isCisTz) {
+        verdict.textContent = '⚠ Вероятен VPN';
+        verdict.className = 'debug-verdict debug-verdict--vpn';
+      } else {
+        verdict.textContent = '✓ VPN не обнаружен';
+        verdict.className = 'debug-verdict debug-verdict--ok';
+      }
+    }
+
+    // Инициализация
+    updateDebug();
+
+    // Небольшая задержка чтобы анимация была видна при загрузке
+    setTimeout(() => {
+      if (shouldShowBanner()) showBanner();
+    }, 600);
+  </script>
+
+</body>
+</html>
